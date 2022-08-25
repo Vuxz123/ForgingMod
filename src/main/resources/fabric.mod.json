@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "testfabricmod",
+  "version": "${version}",
+  "name": "Testfabricmod2",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/testfabricmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "server": [
+      "com.ethinicthv.testfabricmod.networking.server.TestfabricmodServer"
+    ],
+    "client": [
+      "com.ethinicthv.testfabricmod.client.TestfabricmodClient"
+    ],
+    "main": [
+      "com.ethinicthv.testfabricmod.Testfabricmod"
+    ]
+  },
+  "mixins": [
+    "testfabricmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "fabric": "*",
+    "minecraft": "1.19.1"
+  }
+}
