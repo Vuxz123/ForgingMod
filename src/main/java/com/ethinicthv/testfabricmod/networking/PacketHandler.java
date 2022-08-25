@@ -6,15 +6,15 @@ import com.ethinicthv.testfabricmod.networking.packet.PacketIdentifier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+
+import java.util.Objects;
 
 public class PacketHandler {
 
@@ -36,12 +36,12 @@ public class PacketHandler {
             int power = buf.readVarInt();
             BlockPos pos = buf.readBlockPos();
             ServerWorld world = server.getWorld(World.OVERWORLD);
-            Chunk chunk = world.getChunk(pos);
+            Chunk chunk = Objects.requireNonNull(world).getChunk(pos);
             BlockEntity e1 = chunk.getBlockEntity(pos);
             if(e1 instanceof ForgingAnvilEntity forgingAnvilEntity){
                 ItemStack stack = forgingAnvilEntity.getStoredItem().copy();
                 int i = stack.getDamage();
-                stack.setDamage(i -= power);
+                stack.setDamage(i - power);
                 forgingAnvilEntity.setStoredItem(stack, world, world.getBlockState(pos));
             }
         }));

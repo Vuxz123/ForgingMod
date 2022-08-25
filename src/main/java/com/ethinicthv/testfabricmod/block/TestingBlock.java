@@ -2,9 +2,6 @@ package com.ethinicthv.testfabricmod.block;
 
 
 import com.ethinicthv.testfabricmod.block.blockentity.TestingBlockEntity;
-import com.ethinicthv.testfabricmod.networking.PacketHandler;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -14,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -30,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.listener.GameEventListener;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("deprecation")
 public class TestingBlock extends Block implements BlockEntityProvider {
 
     public static String KEY = "testing_block";
@@ -101,7 +98,9 @@ public class TestingBlock extends Block implements BlockEntityProvider {
         if(true){
             BlockEntity e = world.getBlockEntity(pos);
             ItemStack i = player.getMainHandStack().copy();
-            ((TestingBlockEntity) e).onClick(i);
+            if (e != null) {
+                ((TestingBlockEntity) e).onClick(i);
+            }
             boolean check = !( i.getItem().equals(Items.AIR) || ! (i.getItem() instanceof BlockItem));
             player.sendMessage(Text.of( "" + check));
             world.setBlockState(pos, state.with(TestingBlock.COVERED, check), Block.NOTIFY_ALL);

@@ -2,7 +2,6 @@ package com.ethinicthv.testfabricmod.client.renderer;
 
 import com.ethinicthv.testfabricmod.block.blockentity.ForgingAnvilEntity;
 import com.ethinicthv.testfabricmod.client.renderer.util.ForgingAnvilRenderModify;
-import com.ethinicthv.testfabricmod.initializing.BlockProvider;
 import com.ethinicthv.testfabricmod.item.AbstractTestItem;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
@@ -13,11 +12,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Quaternion;
+
+import java.util.Objects;
 
 public class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAnvilEntity> {
 
-    private BlockEntityRendererFactory.Context context;
+    private final BlockEntityRendererFactory.Context context;
 
     public ForgingAnvilRenderer(BlockEntityRendererFactory.Context ctx) {
         context = ctx;
@@ -32,7 +32,7 @@ public class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAnvilEnt
             if(bl){
                 matrices.push();
                 ForgingAnvilRenderModify.getModify(i.getItem()).getFunc().apply(matrices);
-                int lightabove = WorldRenderer.getLightmapCoordinates(entity.getWorld(),entity.getPos());
+                int lightabove = WorldRenderer.getLightmapCoordinates(Objects.requireNonNull(entity.getWorld()),entity.getPos());
                 context.getItemRenderer().renderItem(i, ModelTransformation.Mode.GROUND,lightabove,overlay,matrices,vertexConsumers,0);
                 matrices.pop();
             }

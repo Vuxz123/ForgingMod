@@ -11,12 +11,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
 
 public class BlockProvider {
-    public static Block TEST_BLOCK = new TestingBlock();
-    public static Block FORGING_ANVIL = new ForgingAnvil();
+    public static final Block TEST_BLOCK = new TestingBlock();
+    public static final Block FORGING_ANVIL = new ForgingAnvil();
 
     public static class Item{
-        public static BlockItem TEST_BLOCK_ITEM = new BlockItem(TEST_BLOCK, new FabricItemSettings().group(ItemGroup.DECORATIONS));
-        public static BlockItem FORGING_ANVIL_ITEM = new BlockItem(FORGING_ANVIL, new FabricItemSettings().group(ItemGroup.DECORATIONS));
+        public static final BlockItem TEST_BLOCK_ITEM = new BlockItem(TEST_BLOCK, new FabricItemSettings().group(ItemGroup.DECORATIONS));
+        public static final BlockItem FORGING_ANVIL_ITEM = new BlockItem(FORGING_ANVIL, new FabricItemSettings().group(ItemGroup.DECORATIONS));
     }
 
     public static class Entity{

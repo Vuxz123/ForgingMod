@@ -1,6 +1,5 @@
 package com.ethinicthv.testfabricmod.networking.server;
 
-import com.ethinicthv.testfabricmod.networking.PacketHandler;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -2,40 +2,29 @@ package com.ethinicthv.testfabricmod.client.renderer;
 
 import com.ethinicthv.testfabricmod.block.blockentity.TestingBlockEntity;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.data.client.TextureMap;
 import net.minecraft.item.BlockItem;
 import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
-import org.lwjgl.opengl.GL11;
+
+import java.util.Objects;
 
 public class TestRenderer implements BlockEntityRenderer<TestingBlockEntity> {
 
-    private BlockEntityRendererFactory.Context context;
+    private final BlockEntityRendererFactory.Context context;
 
     public TestRenderer(BlockEntityRendererFactory.Context ctx) {
         context = ctx;
@@ -46,6 +35,7 @@ public class TestRenderer implements BlockEntityRenderer<TestingBlockEntity> {
         return true;
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void render(TestingBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         if(entity.getItem() == ItemStack.EMPTY ) {
@@ -63,7 +53,7 @@ public class TestRenderer implements BlockEntityRenderer<TestingBlockEntity> {
         matrices.push();
         matrices.translate(0.5,1.25,0.5);
 
-        float x = (float) (1 - Math.sin((entity.getWorld().getTime() + tickDelta) / 8.0) / 2.0);
+        float x = (float) (1 - Math.sin((Objects.requireNonNull(entity.getWorld()).getTime() + tickDelta) / 8.0) / 2.0);
         matrices.scale(x,x,x);
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((entity.getWorld().getTime() + tickDelta) * 4));
         int lightabove = WorldRenderer.getLightmapCoordinates(entity.getWorld(),entity.getPos().up());

@@ -23,7 +23,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -36,10 +35,17 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("deprecation")
 public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityProvider, BlockAttackInteractionAware {
 
+    @Environment(EnvType.CLIENT)
+    public static int forging_cooldown = 0;
+    @Environment(EnvType.CLIENT)
+    public static final int max_forging_cooldown = 10;
+    @Environment(EnvType.CLIENT)
     static PlayerEntity p;
 
+    @Environment(EnvType.CLIENT)
     public static Thread a = null;
 
     @Environment(EnvType.CLIENT)
@@ -47,38 +53,36 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         System.out.print("alive");
         return a.isAlive();
     }
+    @SuppressWarnings({"UnusedReturnValue", "BusyWait"})
     @Environment(EnvType.CLIENT)
     public static boolean runTimer(){
-        a = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while(MinecraftClient.getInstance().options.attackKey.isPressed() && MinecraftClient.getInstance().mouse.isCursorLocked()){
-                        for(int i = 0; i < 10; i ++){
-                            Thread.sleep(100);
-                            int a = i + 1;
-                            p.sendMessage(Text.of("" + a));
+        a = new Thread(() -> {
+            try {
+                while(MinecraftClient.getInstance().options.attackKey.isPressed() && MinecraftClient.getInstance().mouse.isCursorLocked()){
+                    for(int i = 0; i < max_forging_cooldown; i ++){
+                        if(forging_cooldown > 0){
+                            forging_cooldown --;
                         }
-
+                        Thread.sleep(100);
                     }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         },"timer");
 
         try {
             a.start();
+            forging_cooldown = max_forging_cooldown;
         }catch (RuntimeException e){
-            System.out.print(e);
+            e.printStackTrace();
             return false;
         }
         return true;
     }
-
-    public static String Key = "forging_anvil";
-    private VoxelShape[] shape = new VoxelShape[4];
-    private VoxelShape[] hit_shape = new VoxelShape[2];
+    private final VoxelShape[] shape = new VoxelShape[4];
+    private final VoxelShape[] hit_shape = new VoxelShape[2];
 
     public ForgingAnvil() {
         super(FabricBlockSettings.of(Material.METAL).nonOpaque().resistance(1200.0f).hardness(5));
@@ -102,7 +106,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         shape[2] = VoxelShapes.union(top3,mid,left2,right2,bot);
         shape[3] = VoxelShapes.union(top4,mid,left2,right2,bot);
 
-        //hit_shape[0];
+        hit_shape[0] = VoxelShapes.cuboid(0.25,1,0.25,0.75, 1.1,0.75);
     }
 
     @Nullable
@@ -116,8 +120,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         int p = 0;
         Direction dir = state.get(FACING);
         switch (dir){
-            case NORTH, SOUTH -> {p = 0;}
-            case EAST, WEST -> {p = 2;}
+            case EAST, WEST -> p = 2;
         }
         return shape[p];
     }
@@ -128,20 +131,18 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         int p = 0;
         Direction dir = state.get(FACING);
         switch (dir){
-            case NORTH, SOUTH -> {p = 0;}
-            case EAST, WEST -> {p = 2;}
+            case EAST, WEST -> p = 2;
         }
 
         sp = shape[p];
 
         if(context instanceof EntityShapeContext){
             Entity entity = ((EntityShapeContext) context).getEntity();
-            if(entity instanceof PlayerEntity){
+            if(entity instanceof PlayerEntity player){
                 double distance = 2;
-                PlayerEntity player = ((PlayerEntity) entity);
-                BlockHitResult result = Util.checkHit(VoxelShapes.cuboid(0.25,1,0.25,0.75, 1.2,0.75),player,pos,distance);
+                BlockHitResult result = Util.checkHit(hit_shape[0],player,pos,distance);
                 if(result != null && result.getType() != HitResult.Type.MISS){
-                    sp = VoxelShapes.union(sp, VoxelShapes.cuboid(0.25,1,0.25,0.75, 1.1,0.75));
+                    sp = VoxelShapes.union(sp, hit_shape[0]);
                 }
             }
         }
@@ -154,6 +155,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         super.appendProperties(builder);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 
@@ -163,7 +165,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
             ItemStack i2 = i.copy();
 
             double distance = 2;
-            BlockHitResult result =  Util.checkHit(VoxelShapes.cuboid(0.25,1,0.25,0.75, 1.2,0.75),player,pos,distance);
+            BlockHitResult result =  Util.checkHit(hit_shape[0],player,pos,distance);
 
             if(result != null && result.getType() != HitResult.Type.MISS){
                 if(entity.getStoredItem() != ItemStack.EMPTY){
@@ -213,7 +215,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
                     ClientPlayNetworking.send(PacketIdentifier.FORGING,buf);
                     ItemStack stack = forgingAnvil.getStoredItem().copy();
                     int temp = stack.getDamage();
-                    stack.setDamage(temp += power);
+                    stack.setDamage(temp + power);
                     forgingAnvil.setStoredItem(stack, world, world.getBlockState(pos));
                     runTimer();
                 }
@@ -221,5 +223,10 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
             return true;
         }
         return false;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static int getCooldownProgress(){
+        return forging_cooldown;
     }
 }
