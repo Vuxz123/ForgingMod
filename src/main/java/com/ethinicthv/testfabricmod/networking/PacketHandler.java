@@ -6,8 +6,12 @@ import com.ethinicthv.testfabricmod.networking.packet.PacketIdentifier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.sound.Sound;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +40,8 @@ public class PacketHandler {
             int power = buf.readVarInt();
             BlockPos pos = buf.readBlockPos();
             ServerWorld world = server.getWorld(World.OVERWORLD);
+            assert world != null;
+            world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_USE, SoundCategory.BLOCKS, 1f, 1f);
             Chunk chunk = Objects.requireNonNull(world).getChunk(pos);
             BlockEntity e1 = chunk.getBlockEntity(pos);
             if(e1 instanceof ForgingAnvilEntity forgingAnvilEntity){

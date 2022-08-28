@@ -22,8 +22,15 @@ public class InGameHudMixin {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "renderCrosshair", at = @At("HEAD"))
-    private void renderCrosshair(MatrixStack matrices, CallbackInfo info){
+    @Inject(method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;defaultBlendFunc()V",
+                    ordinal = 1,
+                    shift = At.Shift.AFTER
+                    )
+    )
+    private void renderCrosshair(MatrixStack matrices, float tickDelta, CallbackInfo ci){
         if (client.player.getMainHandStack().getItem() instanceof ItemCustomHudRenderer i){
             i.render(matrices, scaledHeight, scaledWidth);
         }

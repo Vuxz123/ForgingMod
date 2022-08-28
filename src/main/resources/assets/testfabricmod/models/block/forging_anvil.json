@@ -3,7 +3,7 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "testfabricmod:block/forging_anvil",
-		"particle": "block/texture"
+		"particle": "testfabricmod:block/forging_anvil"
 	},
 	"elements": [
 		{

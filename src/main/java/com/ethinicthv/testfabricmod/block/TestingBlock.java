@@ -95,17 +95,15 @@ public class TestingBlock extends Block implements BlockEntityProvider {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if(true){
-            BlockEntity e = world.getBlockEntity(pos);
-            ItemStack i = player.getMainHandStack().copy();
-            if (e != null) {
-                ((TestingBlockEntity) e).onClick(i);
-            }
-            boolean check = !( i.getItem().equals(Items.AIR) || ! (i.getItem() instanceof BlockItem));
-            player.sendMessage(Text.of( "" + check));
-            world.setBlockState(pos, state.with(TestingBlock.COVERED, check), Block.NOTIFY_ALL);
-
+        BlockEntity e = world.getBlockEntity(pos);
+        ItemStack i = player.getMainHandStack().copy();
+        if (e != null) {
+            ((TestingBlockEntity) e).onClick(i);
         }
+        boolean check = !( i.getItem().equals(Items.AIR) || ! (i.getItem() instanceof BlockItem));
+        player.sendMessage(Text.of( "" + check));
+        world.setBlockState(pos, state.with(TestingBlock.COVERED, check), Block.NOTIFY_ALL);
+
         return ActionResult.SUCCESS;
     }
 

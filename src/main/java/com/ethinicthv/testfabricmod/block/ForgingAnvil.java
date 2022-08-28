@@ -1,12 +1,11 @@
 package com.ethinicthv.testfabricmod.block;
 
 import com.ethinicthv.testfabricmod.block.blockentity.ForgingAnvilEntity;
+import com.ethinicthv.testfabricmod.client.thread.HammerTimer;
 import com.ethinicthv.testfabricmod.initializing.Util;
 import com.ethinicthv.testfabricmod.item.AbstractTestItem;
 import com.ethinicthv.testfabricmod.item.HammerItem;
 import com.ethinicthv.testfabricmod.networking.packet.PacketIdentifier;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.BlockAttackInteractionAware;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,15 +13,18 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.sound.Sound;
+import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -35,54 +37,12 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @SuppressWarnings("deprecation")
 public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityProvider, BlockAttackInteractionAware {
-
-    @Environment(EnvType.CLIENT)
-    public static int forging_cooldown = 0;
-    @Environment(EnvType.CLIENT)
-    public static final int max_forging_cooldown = 10;
-    @Environment(EnvType.CLIENT)
-    static PlayerEntity p;
-
-    @Environment(EnvType.CLIENT)
-    public static Thread a = null;
-
-    @Environment(EnvType.CLIENT)
-    public static boolean isCoolDown(){
-        System.out.print("alive");
-        return a.isAlive();
-    }
-    @SuppressWarnings({"UnusedReturnValue", "BusyWait"})
-    @Environment(EnvType.CLIENT)
-    public static boolean runTimer(){
-        a = new Thread(() -> {
-            try {
-                while(MinecraftClient.getInstance().options.attackKey.isPressed() && MinecraftClient.getInstance().mouse.isCursorLocked()){
-                    for(int i = 0; i < max_forging_cooldown; i ++){
-                        if(forging_cooldown > 0){
-                            forging_cooldown --;
-                        }
-                        Thread.sleep(100);
-                    }
-
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        },"timer");
-
-        try {
-            a.start();
-            forging_cooldown = max_forging_cooldown;
-        }catch (RuntimeException e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-    private final VoxelShape[] shape = new VoxelShape[4];
-    private final VoxelShape[] hit_shape = new VoxelShape[2];
+    private static final VoxelShape[] shape = new VoxelShape[4];
+    private static final VoxelShape[] hit_shape = new VoxelShape[2];
 
     public ForgingAnvil() {
         super(FabricBlockSettings.of(Material.METAL).nonOpaque().resistance(1200.0f).hardness(5));
@@ -136,9 +96,8 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
 
         sp = shape[p];
 
-        if(context instanceof EntityShapeContext){
-            Entity entity = ((EntityShapeContext) context).getEntity();
-            if(entity instanceof PlayerEntity player){
+        if (((EntityShapeContext) context).getEntity() instanceof PlayerEntity player){
+            if(!(player.getStackInHand(player.getActiveHand()).getItem() instanceof HammerItem)){
                 double distance = 2;
                 BlockHitResult result = Util.checkHit(hit_shape[0],player,pos,distance);
                 if(result != null && result.getType() != HitResult.Type.MISS){
@@ -153,6 +112,14 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(Properties.HORIZONTAL_FACING);
         super.appendProperties(builder);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        assert MinecraftClient.getInstance().player != null;
+        MinecraftClient.getInstance().player.sendMessage(Text.of(Direction.fromRotation(MinecraftClient.getInstance().player.getBodyYaw()).asString()));
+        return this.stateManager.getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.fromRotation(MinecraftClient.getInstance().player.getBodyYaw()));
     }
 
     @SuppressWarnings("deprecation")
@@ -196,14 +163,15 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
 
     @Override
     public boolean onAttackInteraction(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, Direction direction) {
-        p = player;
-        if(player.getStackInHand(hand).getItem() instanceof HammerItem){
+        HammerTimer.p = player;
+        ItemStack itemStack = player.getStackInHand(hand);
+        if(itemStack.getItem() instanceof HammerItem){
             BlockEntity entity = world.getBlockEntity(pos);
             if(entity instanceof ForgingAnvilEntity forgingAnvil){
                 ItemStack i = forgingAnvil.getStoredItem();
                 if(i.isDamaged()){
-                    if(a != null){
-                        if(isCoolDown()){
+                    if(HammerTimer.a != null){
+                        if(HammerTimer.isCoolDown()){
                             return true;
                         }
                     }
@@ -217,7 +185,8 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
                     int temp = stack.getDamage();
                     stack.setDamage(temp + power);
                     forgingAnvil.setStoredItem(stack, world, world.getBlockState(pos));
-                    runTimer();
+                    itemStack.damage(1, player, player1 -> {});
+                    HammerTimer.runTimer();
                 }
             }
             return true;
@@ -225,8 +194,28 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         return false;
     }
 
-    @Environment(EnvType.CLIENT)
-    public static int getCooldownProgress(){
-        return forging_cooldown;
+    public static boolean canUse(BlockPos pos, World world){
+        ForgingAnvilEntity entity = Objects.requireNonNull((ForgingAnvilEntity) world.getBlockEntity(pos));
+        return entity.getStoredItem().isDamaged();
+
     }
+
+    public static boolean checkHit(PlayerEntity player, BlockPos pos, double distance, boolean checkhitshape){
+        boolean check = false;
+        for(VoxelShape shape1 : shape){
+            if(check = Util.checkHit(shape1, player, pos, distance).getType() != HitResult.Type.MISS){
+                return check;
+            }
+        }
+        if(checkhitshape){
+            for(VoxelShape shape1 : hit_shape){
+                if(check = Util.checkHit(shape1, player, pos, distance).getType() != HitResult.Type.MISS){
+                    return check;
+                }
+            }
+        }
+        return check;
+    }
+
+
 }
