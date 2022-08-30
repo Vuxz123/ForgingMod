@@ -5,6 +5,7 @@ import com.ethinicthv.testfabricmod.client.thread.HammerTimer;
 import com.ethinicthv.testfabricmod.initializing.Util;
 import com.ethinicthv.testfabricmod.item.AbstractTestItem;
 import com.ethinicthv.testfabricmod.item.HammerItem;
+import com.ethinicthv.testfabricmod.mixin.ToolItemImplement;
 import com.ethinicthv.testfabricmod.networking.packet.PacketIdentifier;
 import net.fabricmc.fabric.api.block.BlockAttackInteractionAware;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -169,24 +170,11 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
             BlockEntity entity = world.getBlockEntity(pos);
             if(entity instanceof ForgingAnvilEntity forgingAnvil){
                 ItemStack i = forgingAnvil.getStoredItem();
+                ToolItemImplement t = (ToolItemImplement) i;
                 if(i.isDamaged()){
-                    if(HammerTimer.a != null){
-                        if(HammerTimer.isCoolDown()){
-                            return true;
-                        }
+                    if(t.checkHit(pos.up(),player,2) != -1){
+                        this.func_1(state,world,pos,forgingAnvil,itemStack,player);
                     }
-                    int power = 1;
-                    world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
-                    PacketByteBuf buf = PacketByteBufs.create();
-                    buf.writeVarInt(power);
-                    buf.writeBlockPos(pos);
-                    ClientPlayNetworking.send(PacketIdentifier.FORGING,buf);
-                    ItemStack stack = forgingAnvil.getStoredItem().copy();
-                    int temp = stack.getDamage();
-                    stack.setDamage(temp + power);
-                    forgingAnvil.setStoredItem(stack, world, world.getBlockState(pos));
-                    itemStack.damage(1, player, player1 -> {});
-                    HammerTimer.runTimer();
                 }
             }
             return true;
@@ -217,5 +205,31 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
         return check;
     }
 
+    public static ItemStack getItem(BlockPos pos, World world){
+        if(world.getBlockEntity(pos) instanceof ForgingAnvilEntity entity){
+            return entity.getStoredItem();
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public void func_1(BlockState state, World world, BlockPos pos, ForgingAnvilEntity forgingAnvil, ItemStack itemStack, PlayerEntity player){
+        if(HammerTimer.a != null){
+            if(HammerTimer.isCoolDown()){
+                return;
+            }
+        }
+        int power = 1;
+        world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeVarInt(power);
+        buf.writeBlockPos(pos);
+        ClientPlayNetworking.send(PacketIdentifier.FORGING,buf);
+        ItemStack stack = forgingAnvil.getStoredItem().copy();
+        int temp = stack.getDamage();
+        stack.setDamage(temp + power);
+        forgingAnvil.setStoredItem(stack, world, world.getBlockState(pos));
+        itemStack.damage(1, player, player1 -> {});
+        HammerTimer.runTimer();
+    }
 
 }

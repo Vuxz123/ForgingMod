@@ -27,5 +27,10 @@
     "fabricloader": ">=0.14.8",
     "fabric": "*",
     "minecraft": "1.19.1"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/item/ToolItem": ["com/ethinicthv/testfabricmod/mixin/ToolItemMixin.java"]
+    }
   }
 }
