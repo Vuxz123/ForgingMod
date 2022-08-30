@@ -4,9 +4,10 @@
   "package": "com.ethinicthv.testfabricmod.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ToolItemMixin"
   ],
   "client": [
-    "InGameHudMixin","ToolItemMixin"
+    "InGameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

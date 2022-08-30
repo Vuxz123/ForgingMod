@@ -1,11 +1,11 @@
-package com.ethinicthv.testfabricmod.mixin;
+package com.ethinicthv.testfabricmod.item.tool;
 
 import com.ethinicthv.testfabricmod.initializing.Util;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import org.spongepowered.asm.mixin.Implements;
 
 public interface ToolItemImplement {
     public VoxelShape[] getHitPoint();

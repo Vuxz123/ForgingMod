@@ -5,7 +5,7 @@ import com.ethinicthv.testfabricmod.client.thread.HammerTimer;
 import com.ethinicthv.testfabricmod.initializing.Util;
 import com.ethinicthv.testfabricmod.item.AbstractTestItem;
 import com.ethinicthv.testfabricmod.item.HammerItem;
-import com.ethinicthv.testfabricmod.mixin.ToolItemImplement;
+import com.ethinicthv.testfabricmod.item.tool.ToolItemImplement;
 import com.ethinicthv.testfabricmod.networking.packet.PacketIdentifier;
 import net.fabricmc.fabric.api.block.BlockAttackInteractionAware;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -14,14 +14,9 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.Sound;
-import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
@@ -170,10 +165,12 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
             BlockEntity entity = world.getBlockEntity(pos);
             if(entity instanceof ForgingAnvilEntity forgingAnvil){
                 ItemStack i = forgingAnvil.getStoredItem();
-                ToolItemImplement t = (ToolItemImplement) i;
-                if(i.isDamaged()){
-                    if(t.checkHit(pos.up(),player,2) != -1){
-                        this.func_1(state,world,pos,forgingAnvil,itemStack,player);
+                if(i.getItem() instanceof ToolItem ti){
+                    ToolItemImplement t = (ToolItemImplement) ti;
+                    if(i.isDamaged()){
+                        if(t.checkHit(pos.up(),player,2) != -1){
+                            this.func_1(state,world,pos,forgingAnvil,itemStack,player);
+                        }
                     }
                 }
             }
