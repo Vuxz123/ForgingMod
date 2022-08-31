@@ -4,15 +4,12 @@ import com.ethinicthv.testfabricmod.block.ForgingAnvil;
 import com.ethinicthv.testfabricmod.client.gui.hud.DrawManager;
 import com.ethinicthv.testfabricmod.client.gui.hud.ItemCustomHudRenderer;
 import com.ethinicthv.testfabricmod.client.thread.HammerTimer;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.block.AirBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 
 public class HammerItem extends AbstractTestItem implements ItemCustomHudRenderer {

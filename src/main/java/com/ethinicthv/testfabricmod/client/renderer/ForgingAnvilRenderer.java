@@ -13,7 +13,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Quaternion;
@@ -33,7 +32,7 @@ public class ForgingAnvilRenderer implements BlockEntityRenderer<ForgingAnvilEnt
         ItemStack i = entity.getStoredItem();
         if(i != ItemStack.EMPTY){
             Item type = i.getItem();
-            boolean bl = type instanceof AbstractTestItem || !(type instanceof BlockItem) ;
+            @SuppressWarnings("ConditionCoveredByFurtherCondition") boolean bl = type instanceof AbstractTestItem || !(type instanceof BlockItem) ;
             if(bl){
                 matrices.push();
                 ForgingAnvilRenderModify.getModify(i.getItem()).getFunc().apply(matrices, getFacingRotation(entity));

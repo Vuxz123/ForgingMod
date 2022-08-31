@@ -3,14 +3,12 @@ package com.ethinicthv.testfabricmod.item.tool;
 import com.ethinicthv.testfabricmod.initializing.Util;
 import com.ethinicthv.testfabricmod.item.AbstractTestItem;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
-import org.apache.commons.compress.compressors.lz77support.LZ77Compressor;
 
 public class ToolItem extends AbstractTestItem {
-    private VoxelShape hit[];
+    private VoxelShape[] hit;
 
     public VoxelShape[] getHitPoint() {
         return hit;
@@ -25,6 +23,7 @@ public class ToolItem extends AbstractTestItem {
         this.hit = hit;
     }
 
+    @SuppressWarnings("AssignmentUsedAsCondition")
     public int checkHit(BlockPos pos, PlayerEntity player, double distance){
         for(int i = 0; i < this.getHitPoint().length; i++){
             boolean bl;

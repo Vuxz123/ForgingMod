@@ -30,7 +30,7 @@ public class Util {
         return buffer[0];
     }
 
-    public static VoxelShape[] rotateShape(Direction from, Direction to, VoxelShape shape[]){
+    public static VoxelShape[] rotateShape(Direction from, Direction to, VoxelShape[] shape){
         for(int i = 0; i < shape.length; i ++){
             VoxelShape temp = shape[i];
             temp = rotateShape(from, to, temp);

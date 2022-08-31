@@ -15,7 +15,7 @@ public abstract class ToolItemMixin extends Item implements ToolItemImplement {
 
     @Override
     public VoxelShape[] getHitPoint() {
-        VoxelShape shape[] = new VoxelShape[1];
+        VoxelShape[] shape = new VoxelShape[1];
         shape[0] = VoxelShapes.cuboid(0,0,0.25,1,0.125,0.75);
         return shape;
     }

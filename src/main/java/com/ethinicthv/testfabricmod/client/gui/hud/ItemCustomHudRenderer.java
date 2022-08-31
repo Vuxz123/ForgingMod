@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
+@SuppressWarnings("ALL")
 @Environment(EnvType.CLIENT)
 public interface ItemCustomHudRenderer {
     default void setTexture(){

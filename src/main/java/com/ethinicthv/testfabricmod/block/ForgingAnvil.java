@@ -142,7 +142,7 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
 
                 if(i != ItemStack.EMPTY){
                     Item type = i2.getItem();
-                    boolean bl = (type instanceof AbstractTestItem || !(type instanceof BlockItem));
+                    @SuppressWarnings("ConditionCoveredByFurtherCondition") boolean bl = (type instanceof AbstractTestItem || !(type instanceof BlockItem));
                     if(bl){
                         entity.setStoredItem(i2,world,state);
                         player.setStackInHand(hand,ItemStack.EMPTY);
@@ -185,21 +185,22 @@ public class ForgingAnvil extends HorizontalFacingBlock implements BlockEntityPr
 
     }
 
+    @SuppressWarnings("AssignmentUsedAsCondition")
     public static boolean checkHit(PlayerEntity player, BlockPos pos, double distance, boolean checkhitshape){
         boolean check = false;
         for(VoxelShape shape1 : shape){
             if(check = Util.checkHit(shape1, player, pos, distance).getType() != HitResult.Type.MISS){
-                return check;
+                return true;
             }
         }
         if(checkhitshape){
             for(VoxelShape shape1 : hit_shape){
                 if(check = Util.checkHit(shape1, player, pos, distance).getType() != HitResult.Type.MISS){
-                    return check;
+                    return true;
                 }
             }
         }
-        return check;
+        return false;
     }
 
     public static ItemStack getItem(BlockPos pos, World world){
